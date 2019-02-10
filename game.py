@@ -22,6 +22,7 @@ ambtx = 4
 ambcap = 1
 ambstress = 0
 ambchill = 2
+ambupkeep = 10
 
 # Base patient properties
 
@@ -79,6 +80,7 @@ class Amb:
         self.stress = ambstress
         self.chill = ambchill
         self.cap = ambcap
+        self.upkeep = ambupkeep
         self.simTarget = -1
     
     def moveAmb(self,dxy):
