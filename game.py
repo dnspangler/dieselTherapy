@@ -8,18 +8,19 @@ import matplotlib.pyplot as plt
 
 nturns = 5
 marketsize = 5
-ptChance = 0.2
+ptChance = 0.4
 
 # Simulation configurations
 
-simTxRisk = 3 # Maximum difference in treatment skill and pt difficulty that AI will try to treat
+simStabRisk = 2 # Maximum difference in treatment skill and pt difficulty that AI will try to stabilize
+simTxRisk = 2 # Maximum difference in treatment skill and pt difficulty that AI will try to treat
 simStress = 1 # Maximum amount of stress AI will allow before resting
 
 # Base ambulance properties
 
 ambxy = (0,0)
 ambspd = 4
-ambtx = 3
+ambtx = 5
 ambcap = 1
 ambstress = 0
 ambchill = 2
@@ -98,7 +99,7 @@ class Amb:
         self.moves -= 1
         if game["ptList"][ptuid].det <= 0 and game["ptList"][ptuid].stage == "loaded":
             if d6 + mod > 3:
-                game["ptList"][ptuid].stage = "treated"
+                game["ptList"][ptuid].stage = "treatedPH"
                 game["cash"] += game["ptList"][ptuid].pay
                 print("Patient",ptuid,"treated for",game["ptList"][ptuid].pay)
                 self.pts.remove(ptuid)
@@ -164,7 +165,7 @@ class Pt:
     def resetTurn(self):
         if len(game["edQueue"]) > 0:
             if game["edQueue"][0] == self.uid:
-                self.stage = "treated"
+                self.stage = "treatedED"
                 game["cash"] += self.pay
                 game["edQueue"].pop(0)
                 print("Patient",self.uid,"treated for", self.pay)
@@ -244,7 +245,9 @@ def simAction(A,game):
             act = "w"
         elif game["ptList"][nearpt[0]].stage == "map":
             act = "l"
-    elif(game["ptList"][A.pts[0]].det >= game["ptList"][A.pts[0]].stab and game["ptList"][A.pts[0]].diff < A.tx + simTxRisk):
+    elif((game["ptList"][A.pts[0]].det >= game["ptList"][A.pts[0]].stab and 
+    game["ptList"][A.pts[0]].diff < A.tx + simStabRisk) or (game["ptList"][A.pts[0]].det == 0 and
+    game["ptList"][A.pts[0]].diff < A.tx - simTxRisk)):
         act = "t"
     elif(A.xy[0]>ambxy[0]):
             act = "a"
@@ -284,14 +287,16 @@ def action(action,A,game,nearpt):
             print("Ambulance" + str(i.uid) +":")
             for j in i.items:
                 j.summary()
-        itemnum = input("Item number to buy/use")
-        if type(itemnum) == 'int':
-            if int(itemnum) in range(1,marketsize):
-                ambnum = input("Ambulance number/other for hand")
-                if type(ambnum) == 'int':
-                    if int(ambnum) in [i.uid for i in game["ambList"]]:
-                        game["ambList"][int(ambnum)].items.append(game["market"].pop(int(itemnum)))
-                        game["market"].append(game["deck"].pop())
+        itemnum = input("Item number to buy:")
+        if int(itemnum) in range(1,marketsize):
+            ambnum = input("Put on Ambulance number:")
+            if type(ambnum) == 'int':
+                if int(ambnum) in [i.uid for i in game["ambList"]]:
+                    game["cash"] -= game["market"][int(itemnum)].cost
+                    game["ambList"][int(ambnum)].items.append(game["market"].pop(int(itemnum)))
+                    game["market"].append(game["deck"].pop())
+                    print(game["ambList"][int(ambnum)].items[-1].name, 
+                    "added to Ambulance", game["ambList"][int(ambnum)].uid)
         else:
             print("Whatever, dude.")
     elif action  == "l":
@@ -431,10 +436,11 @@ else:
 
     shape = (nturns+2, 3)
     stats = np.reshape(stats, shape)
-    print(stats)
     plt.subplot(2,1,1)
-    plt.title("Cash and avg dead by turn")
+    plt.title("Stats by turn")
+    plt.ylabel("Cash")
     plt.plot(stats[:,0],stats[:,1])
     plt.subplot(2,1,2)
+    plt.ylabel("Avg dead")
     plt.plot(stats[:,0],stats[:,2])
     plt.show()
