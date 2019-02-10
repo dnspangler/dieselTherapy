@@ -9,6 +9,10 @@ Your ambulance starts at the hospital at the origin of an (x,y) plane, with a pa
 At the end of the turn, you will get paid cash money for any unloaded patients at the hospital. But watch out - Any patients not
 at the hospital will deteriorate! A patient whose deterioration exeecedstheir satbility will die, and you will be fined a hefty sum. 
 
-To prevent this, (t)reat your loaded patients - a d6 roll of 4+ modified by the difference between the treatment skill of your ambulance and the difficulty score of the patient, results in the deterioration of the patient being reduced by 1. (t)reating a patient with 0 deterioration implies successfully treating them in the field, and you get paid without having to lug them tothe Emergency Department - a failed check means a dead patient though!
+To prevent this, (t)reat your loaded patients - a d6 roll of 4+ modified by the difference between the treatment skill of your ambulance and the difficulty score of the patient, results in the deterioration of the patient being reduced by 1. (t)reating a patient with 0 deterioration implies successfully treating them in the field, and you get paid without having to lug them to the Emergency Department - a failed check means a dead patient though!
 
 Stressful events such as having a patient die will stress crews out, and if a crew's stress exceeds it's chill, speed will be reduced. Let your crews (c)hill for a full turn to recover from stress.
+
+To do: 
+-Implement functionality for items
+-Make simulation smarter
