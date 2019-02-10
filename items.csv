@@ -1,0 +1,30 @@
+uid,n,name,type,prop,mod,cond,cost,upkeep,text
+0,8,Vanbulance,vehicle,spd,1,,100,10,Run of the mill ghetto transport bus
+1,6,Mod box,vehicle,cap,1,,150,15,You can fit so many patients in this baby.
+1,6,Mod box,vehicle,tx,1,,150,15,
+2,4,Euro ambulance,vehicle,spd,1,,200,15,Sleek ambulance for the discerning ambulance service
+2,4,Euro ambulance,vehicle,tx,2,,200,15,
+3,4,Flycar,vehicle,cap,-1,,50,5,"Wont move patients, but fun to jet around in!"
+3,4,Flycar,vehicle,spd,2,,50,5,
+4,6,Monitor,durable,tx,3,"type==""cardiac""",50,0,Cardiac monitor for making squiggily artworks.
+5,8,Defib,durable,tx,3,det>=stab,50,0,"Works every time, some of the time."
+6,4,Mechanical CPR,durable,tx,2,det==stab,50,0,
+7,2,Mobile MRI,durable,tx,5,"type==""stroke""",100,5,A giant friggin' MRI machine. Got tPA?
+7,2,Mobile MRI,durable,cap,-1,,100,5,
+8,8,ePCR tablet,durable,pay,10,,50,0,Good documentation gets you paid!
+9,12,O2,expendable,tx,1,,10,0,This definitely helps patients.
+10,12,Painkillers,expendable,tx,2,,20,0,The good stuff.
+11,8,IV drip,expendable,tx,2,,20,0,Drip drop
+12,8,IO drill,expendable,tx,3,stab<4,40,0,Brrrrrt
+13,6,Advanced airway,expendable,tx,3,"type==""diffbr""",20,0,Don't choke!
+14,24,Coffee,expendable,moves,-1,,10,0,Vital to any well-functioning EMS system.
+15,12,Tourniquet,expendable,tx,3,"type==""trauma""",20,0,Did you try elevation first?
+16,6,Old salt,staff,chill,3,,10,10,You haven't seen shit.
+16,6,Old salt,staff,tx,1,,10,10,
+17,8,Buffy McGee,staff,chill,2,,5,5,"Check out these shears, bro!"
+17,8,Buffy McGee,staff,tx,3,"type==""trauma""",5,5,
+18,12,FNG,staff,spd,1,,5,5,Need me to carry anything?
+19,6,Momma nurse,staff,tx,2,,15,15,"Oh hun, did you get a boo boo? Poor baby."
+19,6,Momma nurse,staff,tx,2,"type==""sick"" or type==""pediatric""",15,15,
+19,6,Momma nurse,staff,chill,2,,15,15,
+20,4,Dr. Doctor,staff,tx,4,,20,20,Take two and call me in the morning.
