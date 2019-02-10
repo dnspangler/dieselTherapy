@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
 # Set global game variables
 
@@ -17,8 +18,8 @@ simStress = 1 # Maximum amount of stress AI will allow before resting
 # Base ambulance properties
 
 ambxy = (0,0)
-ambspd = 4
-ambtx = 4
+ambspd = 3
+ambtx = 2
 ambcap = 1
 ambstress = 0
 ambchill = 2
@@ -32,7 +33,7 @@ ptpriorange = (1,3)
 ptpriostabmult = 2
 ptstabrange = (0,10)
 ptstabsd = 2
-ptpaymod = (0,100)
+ptpaymod = (0,200)
 pttype = ["cardiac","pediatric","stroke","sick","trauma","diffbr"]
 
 # Define items
@@ -242,7 +243,7 @@ def simAction(A,game):
             act = "w"
         elif game["ptList"][nearpt[0]].stage == "map":
             act = "l"
-    elif(game["ptList"][A.pts[0]].det >= game["ptList"][A.pts[0]].stab & game["ptList"][A.pts[0]].diff < A.tx + simTxRisk):
+    elif(game["ptList"][A.pts[0]].det >= game["ptList"][A.pts[0]].stab and game["ptList"][A.pts[0]].diff < A.tx + simTxRisk):
         act = "t"
     elif(A.xy[0]>ambxy[0]):
             act = "a"
@@ -353,42 +354,17 @@ while(t not in ["m","s"]):
     t = input()
     if(t=="w"):
         print("""
-The year is 2021, and The Making Healthcare Great Again Act has recently 
-opened up exciting new opportunities in the field of pre-hospital care. 
-As an up-and-coming private ambulance service provider, your goal is to 
-make as much money as you can. Watch out though - If you kill too many 
-patients the pesky government might try and regulate you again!
+The year is 2021, and The Making Healthcare Great Again Act has recently opened up exciting new opportunities in the field of pre-hospital care. As an up-and-coming private ambulance service provider, your goal is to make as much money as you can. Watch out though - If you kill too many patients the pesky government might try and regulate you again!
 
-Press the 'm' key and hit enter your keyboard to play a game manually, 
-or use the 's' key simulate a game based on parameters set in the source 
-code. 
+Press the 'm' key and hit enter your keyboard to play a game manually,  or use the 's' key simulate a game based on parameters set in the source code. 
 
-Your ambulance starts at the hospital at the origin of an (x,y) plane, 
-with a patient spawned somewhere near you. New patients will spawn randomly
-as the game progresses. Move to them with the (wasd) keys, (l)ad them onto
-your, drive them back to the hospital at the origin, where you can 
-(u)nload them. 
+Your ambulance starts at the hospital at the origin of an (x,y) plane, with a patient spawned somewhere near you. New patients will spawn randomly as the game progresses. Move to them with the (wasd) keys, (l)oad them onto your ambulance, and drive them back to the hospital at the origin, where you can (u)nload them to be treated. 
 
-At the end of the turn, you will get paid cash money for 
-any unloaded patients at the hospital. But watch out - Any patients not
-at the hospital will deteriorate! A patient whose deterioration exeeceds
-their satbility will die, and you will be fined a hefty sum. 
+At the end of the turn, you will get paid cash money for any unloaded patients at the hospital. But watch out - Any non-treated patients will deteriorate! A patient whose deterioration exeeceds their stability will die, and you will be fined a hefty sum. 
 
-To prevent this, (t)reat your loaded patients - a d6 roll of 4+ modified 
-by the difference between the treatment skill of your ambulance and the 
-difficulty score of the patient, results in the deterioration of the patient 
-being reduced by 1. (t)reating a patient with 0 deterioration implies successfully
-treating them in the field, and you get paid without having to lug them to
-the Emergency Department - a failed check means a dead patient though!
+To prevent this, (t)reat your loaded patients - a d6 roll of 4+ modified by the difference between the treatment skill of your ambulance and the difficulty score of the patient, results in the deterioration of the patient being reduced by 1. (t)reating a patient with 0 deterioration implies successfully treating them in the field, and you get paid without having to lug them to the Emergency Department - Watch out though, as a failed check means a dead patient!
 
-Stressful events such as having a patient die will stress crews out, and 
-if a crew's stress exceeds it's chill, speed will be reduced. Let your 
-crews (c)hill for a full turn to recover from stress.
-
-To do: 
--Implement functionality for items
--Make simulation smarter
-""")
+Stressful events such as having a patient die or (r)ushing to take an extra move during a turn will stress crews out, and if a crew's stress exceeds it's chill, speed will be reduced. Let your crews (c)hill for a full turn to recover from stress.""")
 print("Number of turns?")
 nturns = input()
 nturns = int(nturns)
@@ -403,8 +379,6 @@ game = {"turn" : 0,
         "edQueue" : []}
 
 game["ambList"].append(Amb())
-game["ambList"].append(Amb())
-game["ptList"].append(Pt())
 game["ptList"].append(Pt())
 
 for i in game["ambList"]:
@@ -422,10 +396,15 @@ np.random.shuffle(game["deck"])
 game["market"] = game["deck"][0:marketsize]
 game["deck"] = game["deck"][marketsize:-1]
 
+colnames = ["turn","cash"]
+stats = np.array([-1,0])
 # Main game loop
 
 while game["turn"] <= nturns:
     print("Turn",game["turn"],"start,",game["cash"],"cash")
+    if np.random.uniform(0,1) < ptChance:
+        game["ptList"].append(Pt())
+        print("Patient",game["ptList"][-1].uid,"Prio",game["ptList"][-1].prio,"at",game["ptList"][-1].xy)  
     for i in game["ambList"]:
         print("Ambulance",i.uid)
         while i.moves > 0:
@@ -434,14 +413,12 @@ while game["turn"] <= nturns:
             else:
                 simAction(i,game)
     else:
-        game["turn"] += 1
         for i in game["ambList"]:
             i.resetTurn()
         for i in game["ptList"]:
             i.resetTurn()
-        if np.random.uniform(0,1) < ptChance:
-            game["ptList"].append(Pt())
-    
+        stats = np.append(arr = stats,values = [game["turn"],game["cash"]] ,axis = 0)
+        game["turn"] += 1
 else:
     print("Game over, man!")
     print("Turn:",game["turn"],"Cash:",game["cash"])
@@ -449,3 +426,9 @@ else:
         i.summary()
     for i in game["ptList"]:
         i.summary()
+
+    shape = (nturns+2, 2)
+    stats = np.reshape(stats, shape)
+    print(stats)
+    plt.plot(stats[:,0],stats[:,1])
+    plt.show()
