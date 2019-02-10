@@ -12,18 +12,18 @@ ptChance = 0.2
 
 # Simulation configurations
 
-simTxRisk = 2 # Maximum difference in treatment skill and pt difficulty that AI will try to treat
+simTxRisk = 3 # Maximum difference in treatment skill and pt difficulty that AI will try to treat
 simStress = 1 # Maximum amount of stress AI will allow before resting
 
 # Base ambulance properties
 
 ambxy = (0,0)
-ambspd = 3
-ambtx = 2
+ambspd = 4
+ambtx = 3
 ambcap = 1
 ambstress = 0
 ambchill = 2
-ambupkeep = 10
+ambupkeep = 15
 
 # Base patient properties
 
@@ -33,7 +33,7 @@ ptpriorange = (1,3)
 ptpriostabmult = 2
 ptstabrange = (0,10)
 ptstabsd = 2
-ptpaymod = (0,200)
+ptpaymod = (0,300)
 pttype = ["cardiac","pediatric","stroke","sick","trauma","diffbr"]
 
 # Define items
@@ -123,6 +123,7 @@ class Amb:
             self.stress -= 1
         self.moves -= max([0,self.stress - self.chill])
         self.relax = 0
+        game["cash"] -= self.upkeep
         self.summary()
     
     def summary(self):
@@ -397,7 +398,7 @@ game["market"] = game["deck"][0:marketsize]
 game["deck"] = game["deck"][marketsize:-1]
 
 colnames = ["turn","cash"]
-stats = np.array([-1,0])
+stats = np.array([-1,0,0])
 # Main game loop
 
 while game["turn"] <= nturns:
@@ -417,7 +418,8 @@ while game["turn"] <= nturns:
             i.resetTurn()
         for i in game["ptList"]:
             i.resetTurn()
-        stats = np.append(arr = stats,values = [game["turn"],game["cash"]] ,axis = 0)
+        meanDead = len([i.stage for i in game["ptList"] if i.stage == "dead"]) / len([i.stage for i in game["ptList"]])
+        stats = np.append(arr = stats,values = [game["turn"],game["cash"],meanDead])
         game["turn"] += 1
 else:
     print("Game over, man!")
@@ -427,8 +429,12 @@ else:
     for i in game["ptList"]:
         i.summary()
 
-    shape = (nturns+2, 2)
+    shape = (nturns+2, 3)
     stats = np.reshape(stats, shape)
     print(stats)
+    plt.subplot(2,1,1)
+    plt.title("Cash and avg dead by turn")
     plt.plot(stats[:,0],stats[:,1])
+    plt.subplot(2,1,2)
+    plt.plot(stats[:,0],stats[:,2])
     plt.show()
