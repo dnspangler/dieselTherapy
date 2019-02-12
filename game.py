@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 
 nturns = 5
 marketsize = 5
-ptChance = 0.4
+ptChance = 0.4 # Chance per ambulance of spawning a patient
 
 # Simulation configurations
 
-simStabRisk = 2 # Maximum difference in treatment skill and pt difficulty that AI will try to stabilize
+simStabRisk = 2 # Maximum difference in treatment skill and pt difficulty that AI will try to treat
 simTxRisk = 2 # Maximum difference in treatment skill and pt difficulty that AI will try to treat
 simStress = 1 # Maximum amount of stress AI will allow before resting
 
@@ -20,11 +20,11 @@ simStress = 1 # Maximum amount of stress AI will allow before resting
 
 ambxy = (0,0)
 ambspd = 4
-ambtx = 5
+ambtx = 3
 ambcap = 1
 ambstress = 0
 ambchill = 2
-ambupkeep = 15
+ambupkeep = 25
 
 # Base patient properties
 
@@ -32,7 +32,7 @@ ptxyrange = (-5,5)
 ptstage = "map" # 0 = EMD, 1 = ptContact, 2 = ED Queue, 3 = Treated, 4 = Dead
 ptpriorange = (1,3)
 ptpriostabmult = 2
-ptstabrange = (0,10)
+ptstabrange = (1,10)
 ptstabsd = 2
 ptpaymod = (0,300)
 pttype = ["cardiac","pediatric","stroke","sick","trauma","diffbr"]
@@ -246,7 +246,8 @@ def simAction(A,game):
         elif game["ptList"][nearpt[0]].stage == "map":
             act = "l"
     elif((game["ptList"][A.pts[0]].det >= game["ptList"][A.pts[0]].stab and 
-    game["ptList"][A.pts[0]].diff < A.tx + simStabRisk) or (game["ptList"][A.pts[0]].det == 0 and
+    game["ptList"][A.pts[0]].diff < A.tx + simStabRisk) or 
+    (game["ptList"][A.pts[0]].det < (abs(A.xy[0]) + abs(A.xy[1]) -2 + len(game["edQueue"])) and
     game["ptList"][A.pts[0]].diff < A.tx - simTxRisk)):
         act = "t"
     elif(A.xy[0]>ambxy[0]):
@@ -385,6 +386,7 @@ game = {"turn" : 0,
         "edQueue" : []}
 
 game["ambList"].append(Amb())
+game["ambList"].append(Amb())
 game["ptList"].append(Pt())
 
 for i in game["ambList"]:
@@ -408,9 +410,10 @@ stats = np.array([-1,0,0])
 
 while game["turn"] <= nturns:
     print("Turn",game["turn"],"start,",game["cash"],"cash")
-    if np.random.uniform(0,1) < ptChance:
-        game["ptList"].append(Pt())
-        print("Patient",game["ptList"][-1].uid,"Prio",game["ptList"][-1].prio,"at",game["ptList"][-1].xy)  
+    for i in range(0,len(game["ambList"])):
+        if np.random.uniform(0,1) < ptChance:
+            game["ptList"].append(Pt())
+            print("Patient",game["ptList"][-1].uid,"Prio",game["ptList"][-1].prio,"at",game["ptList"][-1].xy)  
     for i in game["ambList"]:
         print("Ambulance",i.uid)
         while i.moves > 0:
