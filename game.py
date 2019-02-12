@@ -20,7 +20,7 @@ simStress = 1 # Maximum amount of stress AI will allow before resting
 
 ambxy = (0,0)
 ambspd = 4
-ambtx = 3
+ambtx = 5
 ambcap = 1
 ambstress = 0
 ambchill = 2
@@ -247,7 +247,7 @@ def simAction(A,game):
             act = "l"
     elif((game["ptList"][A.pts[0]].det >= game["ptList"][A.pts[0]].stab and 
     game["ptList"][A.pts[0]].diff < A.tx + simStabRisk) or 
-    (game["ptList"][A.pts[0]].det < (abs(A.xy[0]) + abs(A.xy[1]) -2 + len(game["edQueue"])) and
+    (game["ptList"][A.pts[0]].det < (abs(A.xy[0]) + abs(A.xy[1]) - 2 + len(game["edQueue"])) and
     game["ptList"][A.pts[0]].diff < A.tx - simTxRisk)):
         act = "t"
     elif(A.xy[0]>ambxy[0]):
